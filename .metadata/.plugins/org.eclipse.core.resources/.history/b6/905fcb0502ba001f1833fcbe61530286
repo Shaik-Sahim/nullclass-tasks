@@ -1,0 +1,106 @@
+package seleniumJava;
+
+import org.junit.jupiter.api.*;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.time.LocalTime;
+
+public class LoginTest {
+
+    private WebDriver driver;
+    private String baseUrl = "https://in.puma.com/in/en";  // Replace with your application URL
+
+    @BeforeEach
+    public void setUp() {
+        // Set path to ChromeDriver (change it to your local path)
+    	System.setProperty("webdriver.chrome.driver", "c:\\Drivers\\chromedriver.exe");
+        driver = new ChromeDriver();
+		driver.manage().window().maximize();
+    }
+
+    @Test
+    public void testLoginFunctionality() {
+        driver.get(baseUrl + "/account/login?action=login_with_email");
+        
+        // Input username and password (adjust locators accordingly)
+        driver.findElement(By.id("email")).sendKeys("sahim3041@gmail.com");
+        driver.findElement(By.id("password")).sendKeys("Sahim@789");
+        driver.findElement(By.id("login-submit")).click(); // Adjust to your login button's locator
+        
+        WebDriverWait waitforLogin = new WebDriverWait(driver, Duration.ofSeconds(30));
+        WebElement greetingElement = waitforLogin.until(ExpectedConditions.elementToBeClickable(By.cssSelector("h1[data-test-id='account-greeting']")));
+
+        // Get the text of the element
+        String fullGreetingText = greetingElement.getText(); // "Hello, sahim"
+
+        // Remove "Hello," to extract the name
+        String name = fullGreetingText.replace("Hello, ", "").trim();
+
+        // Print the extracted name
+        System.out.println("Extracted Name: " + name);
+        
+        // Verify successful login by checking the user profile page
+        WebElement profileName = driver.findElement(By.id("profileName")); // Adjust profile name locator
+        Assertions.assertTrue(profileName.isDisplayed());
+    }
+
+    @Test
+    public void testProfileNameValidation() {
+        String[] invalidNames = {"Alex", "Jake", "George", "Liam"};
+        for (String name : invalidNames) {
+            driver.get(baseUrl + "/profile");  // Navigate to the profile page
+            WebElement nameField = driver.findElement(By.id("profileNameField"));
+            nameField.clear();
+            nameField.sendKeys(name);
+
+            // Submit the name (adjust to your save button locator)
+            driver.findElement(By.id("saveButton")).click();
+            
+            // Check for error message (change to actual error message locator)
+            WebElement errorMessage = driver.findElement(By.id("error"));
+            Assertions.assertTrue(errorMessage.isDisplayed(), "Error message should be displayed for invalid name: " + name);
+        }
+    }
+
+    @Test
+    public void testProfileDisplay() {
+        // Login first
+        testLoginFunctionality();
+
+        // After login, navigate to profile page
+        driver.get(baseUrl + "/account");  // Adjust to your profile URL
+
+        WebElement profileName = driver.findElement(By.id("profileName"));
+        String displayedName = profileName.getText();
+        // Assert that the profile name does not contain invalid characters (A, C, G, I, L, K)
+        Assertions.assertFalse(displayedName.matches(".*[ACGILK].*"), "Profile name should not contain restricted characters.");
+    }
+
+    @Test
+    public void testTimeSpecificBehavior() {
+        // Get the current time
+        LocalTime currentTime = LocalTime.now();
+        int hour = currentTime.getHour();
+        
+        // Run tests only between 12 PM and 3 PM
+        if (hour >= 12 && hour <= 15) {
+            testLoginFunctionality();
+            testProfileNameValidation();
+            testProfileDisplay();
+        } else {
+            System.out.println("Tests can only be run between 12 PM and 3 PM. Current time: " + currentTime);
+        }
+    }
+
+    @AfterEach
+    public void tearDown() {
+        // Close the browser after each test
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}

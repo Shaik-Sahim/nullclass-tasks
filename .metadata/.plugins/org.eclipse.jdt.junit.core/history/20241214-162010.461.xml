@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="LoginTest" project="seleniumJava" tests="3" started="3" failures="0" errors="0" ignored="0">
+  <testsuite name="seleniumJava.LoginTest" time="38.025" displayname="LoginTest" uniqueid="[engine:junit-jupiter]/[class:seleniumJava.LoginTest]">
+    <testcase name="testProfileNameValidation" classname="seleniumJava.LoginTest" time="9.661" displayname="testProfileNameValidation()" uniqueid="[engine:junit-jupiter]/[class:seleniumJava.LoginTest]/[method:testProfileNameValidation()]"/>
+    <testcase name="testTimeSpecificBehavior" classname="seleniumJava.LoginTest" time="16.081" displayname="testTimeSpecificBehavior()" uniqueid="[engine:junit-jupiter]/[class:seleniumJava.LoginTest]/[method:testTimeSpecificBehavior()]"/>
+    <testcase name="testLoginFunctionality" classname="seleniumJava.LoginTest" time="12.282" displayname="testLoginFunctionality()" uniqueid="[engine:junit-jupiter]/[class:seleniumJava.LoginTest]/[method:testLoginFunctionality()]"/>
+  </testsuite>
+</testrun>

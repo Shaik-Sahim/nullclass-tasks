@@ -1,0 +1,98 @@
+package seleniumJava;
+
+import org.junit.jupiter.api.*;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import java.time.LocalTime;
+import java.util.concurrent.TimeUnit;
+
+public class LoginTest {
+
+    private WebDriver driver;
+    private String baseUrl = "https://yourwebsite.com";  // Replace with your application URL
+
+    @BeforeEach
+    public void setUp() {
+        // Set path to ChromeDriver (change it to your local path)
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        
+        // Set up Chrome options (optional)
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");  // Optional: to run in headless mode
+
+        // Initialize WebDriver
+        driver = new ChromeDriver(options);
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void testLoginFunctionality() {
+        driver.get(baseUrl + "/login"); // Replace with your login page URL
+        
+        // Input username and password (adjust locators accordingly)
+        driver.findElement(By.id("username")).sendKeys("validUsername");
+        driver.findElement(By.id("password")).sendKeys("validPassword");
+        driver.findElement(By.id("loginButton")).click(); // Adjust to your login button's locator
+
+        // Verify successful login by checking the user profile page
+        WebElement profileName = driver.findElement(By.id("profileName")); // Adjust profile name locator
+        Assertions.assertTrue(profileName.isDisplayed());
+    }
+
+    @Test
+    public void testProfileNameValidation() {
+        String[] invalidNames = {"Alex", "Jake", "George", "Liam"};
+        for (String name : invalidNames) {
+            driver.get(baseUrl + "/profile");  // Navigate to the profile page
+            WebElement nameField = driver.findElement(By.id("profileNameField"));
+            nameField.clear();
+            nameField.sendKeys(name);
+
+            // Submit the name (adjust to your save button locator)
+            driver.findElement(By.id("saveButton")).click();
+            
+            // Check for error message (change to actual error message locator)
+            WebElement errorMessage = driver.findElement(By.id("error"));
+            Assertions.assertTrue(errorMessage.isDisplayed(), "Error message should be displayed for invalid name: " + name);
+        }
+    }
+
+    @Test
+    public void testProfileDisplay() {
+        // Login first
+        testLoginFunctionality();
+
+        // After login, navigate to profile page
+        driver.get(baseUrl + "/profile");  // Adjust to your profile URL
+
+        WebElement profileName = driver.findElement(By.id("profileName"));
+        String displayedName = profileName.getText();
+        // Assert that the profile name does not contain invalid characters (A, C, G, I, L, K)
+        Assertions.assertFalse(displayedName.matches(".*[ACGILK].*"), "Profile name should not contain restricted characters.");
+    }
+
+    @Test
+    public void testTimeSpecificBehavior() {
+        // Get the current time
+        LocalTime currentTime = LocalTime.now();
+        int hour = currentTime.getHour();
+        
+        // Run tests only between 12 PM and 3 PM
+        if (hour >= 12 && hour <= 15) {
+            testLoginFunctionality();
+            testProfileNameValidation();
+            testProfileDisplay();
+        } else {
+            System.out.println("Tests can only be run between 12 PM and 3 PM. Current time: " + currentTime);
+        }
+    }
+
+    @AfterEach
+    public void tearDown() {
+        // Close the browser after each test
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}

@@ -1,0 +1,32 @@
+package seleniumJava;
+
+//Import necessary Selenium WebDriver classes
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;  // For Chrome Browser
+//import org.openqa.selenium.firefox.FirefoxDriver; // For Firefox
+//import org.openqa.selenium.edge.EdgeDriver; // For Edge
+
+public class FindById {
+ public static void main(String[] args) {
+     // Set the path for ChromeDriver (if not in PATH already)
+		System.setProperty("webdriver.chrome.driver", "c:\\Drivers\\chromedriver.exe");
+
+     // Initialize WebDriver (e.g., ChromeDriver)
+     WebDriver driver = new ChromeDriver(); // This can be FirefoxDriver, EdgeDriver, etc.
+		driver.manage().window().maximize();
+
+     // Open a website
+     driver.get("https://www.w3.org/WAI/ARIA/apg/patterns/button/examples/button/");
+
+     // Find the element by ID
+     WebElement element = driver.findElement(By.id("action"));
+
+     // Interact with the element (e.g., print text)
+     System.out.println(element.getText());
+
+     // Close the browser
+     driver.quit();
+ }
+}

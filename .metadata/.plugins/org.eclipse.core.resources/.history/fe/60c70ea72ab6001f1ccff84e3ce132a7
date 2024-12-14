@@ -1,0 +1,84 @@
+package seleniumJava;
+
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.*;
+import java.time.Duration;
+import java.time.LocalTime;
+
+public class ProductPurchaseTest {
+
+    WebDriver driver;
+
+    public ProductPurchaseTest() {
+        // Setup WebDriver (Chrome in this case)
+		System.setProperty("webdriver.chrome.driver", "c:\\Drivers\\chromedriver.exe");
+        driver = new ChromeDriver();
+    }
+
+    public void searchProductAndAddToCart() {
+        driver.get("https://www.jiomart.com/");
+        WebDriverWait waitforSearch = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement searchBox = waitforSearch.until(ExpectedConditions.elementToBeClickable(By.id("autocomplete-0-input")));
+        searchBox.sendKeys("Washing machine");
+        searchBox.submit();
+
+        WebDriverWait waitImage = new WebDriverWait(driver, Duration.ofSeconds(30));
+
+        // Wait until the image is visible on the page
+        WebElement image = waitImage.until(ExpectedConditions.visibilityOfElementLocated(
+            By.xpath("//img[@src='https://www.jiomart.com/images/product/original/492166157/lg-7-5-kg-fully-automatic-top-loading-washing-machine-with-smart-inverter-technology-t75sksf1z-middle-free-silver-digital-o492166157-p590910310-0-202111261917.jpeg?im=Resize=(360,360)']"))
+        );
+
+        // Optionally, click the image (or perform other actions)
+        image.click(); // Click on the image, or use other actions as needed
+
+
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		WebElement addToCartButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("add_to_cart_main_btn")));
+		addToCartButton.click();
+    }
+
+    public void makePayment() {
+        WebElement cartButton = driver.findElement(By.id("nav-cart"));
+        cartButton.click();
+
+        WebElement checkoutButton = driver.findElement(By.id("proceed-to-checkout-action"));
+        checkoutButton.click();
+        WebElement confirmAddressButton = driver.findElement(By.id("orderSummaryPrimaryActionBtn"));
+        confirmAddressButton.click();
+        WebElement paymentAmount = driver.findElement(By.id("subtotals-marketplace-table"));
+        String amountText = paymentAmount.getText();
+        double amount = Double.parseDouble(amountText.replaceAll("[^0-9.]", ""));
+        
+        if (amount > 500) {
+            WebElement payButton = driver.findElement(By.id("submitOrderButtonId"));
+//            payButton.click();
+        }
+    }
+
+    public void confirmOrder() {
+        WebElement orderConfirmation = new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(ExpectedConditions.visibilityOfElementLocated(By.id("order-confirmation")));
+        System.out.println("Order confirmed: " + orderConfirmation.getText());
+    }
+
+    public void runTest() {
+        if (TimeCheck.isValidTime()) {
+            try {
+                searchProductAndAddToCart();
+                makePayment();
+                confirmOrder();
+            } finally {
+                driver.quit();
+            }
+        } else {
+            System.out.println("Test can only be run between 6 PM and 7 PM.");
+        }
+    }
+
+    public static void main(String[] args) {
+        ProductPurchaseTest test = new ProductPurchaseTest();
+        test.runTest();
+    }
+}

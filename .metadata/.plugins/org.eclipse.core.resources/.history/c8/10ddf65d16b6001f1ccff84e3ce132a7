@@ -1,0 +1,9 @@
+/**
+ * 
+ */
+/**
+ * 
+ */
+module seleniumJava {
+	requires selenium.api;
+}

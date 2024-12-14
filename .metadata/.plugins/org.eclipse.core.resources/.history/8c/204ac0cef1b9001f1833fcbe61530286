@@ -1,0 +1,95 @@
+package seleniumJava;
+
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.*;
+import java.time.Duration;
+import java.time.LocalTime;
+
+public class ProductPurchaseTest {
+
+    WebDriver driver;
+
+    public ProductPurchaseTest() {
+        // Setup WebDriver (Chrome in this case)
+		System.setProperty("webdriver.chrome.driver", "c:\\Drivers\\chromedriver.exe");
+        driver = new ChromeDriver();
+    }
+
+    public void searchProductAndAddToCart() {
+        driver.get("https://www.amazon.in/");
+        WebDriverWait waitforSearch = new WebDriverWait(driver, Duration.ofSeconds(10));
+//        WebElement searchIcon = waitforSearch.until(ExpectedConditions.elementToBeClickable(By.id("nav-search-icon")));
+//        searchIcon.click();
+        WebElement searchBox = waitforSearch.until(ExpectedConditions.elementToBeClickable(By.id("twotabsearchtextbox")));
+        searchBox.sendKeys("Washing machine" + Keys.RETURN);
+
+//        WebElement link = waitforSearch.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//a[@href='https://www.nike.com/in/launch/r/HF5516-001']")));
+//        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", link);
+        WebElement addToCartButton = waitforSearch.until(ExpectedConditions.elementToBeClickable(By.id("a-autoid-3-announce")));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", addToCartButton);
+        addToCartButton.click();
+        
+//        WebElement link = waitforSearch.until(ExpectedConditions.presenceOfElementLocated(
+//        	    By.xpath("//a[@class='a-link-normal s-line-clamp-2 s-link-style a-text-normal' and contains(@href, '/sspa/click')]")));
+//        	((JavascriptExecutor) driver).executeScript("arguments[0].click();", link);
+        	
+//        	
+        
+        WebElement buyButton = waitforSearch.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(text(), 'Buy')]")));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", buyButton);
+        buyButton.click();
+        
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
+        
+
+        // Locate the "Add to Cart" button using XPath containing the button's text
+//        WebElement addToCartButton = wait.until(ExpectedConditions.elementToBeClickable(
+//            By.xpath("//button[contains(text(),'Add to Cart')]") // XPath to match button with the text "Add to Cart"
+//        ));
+//		addToCartButton.click();
+    }
+
+    public void makePayment() {
+        WebElement cartButton = driver.findElement(By.id("nav-cart"));
+        cartButton.click();
+
+        WebElement checkoutButton = driver.findElement(By.id("proceed-to-checkout-action"));
+        checkoutButton.click();
+        WebElement confirmAddressButton = driver.findElement(By.id("orderSummaryPrimaryActionBtn"));
+        confirmAddressButton.click();
+        WebElement paymentAmount = driver.findElement(By.id("subtotals-marketplace-table"));
+        String amountText = paymentAmount.getText();
+        double amount = Double.parseDouble(amountText.replaceAll("[^0-9.]", ""));
+        
+        if (amount > 500) {
+            WebElement payButton = driver.findElement(By.id("submitOrderButtonId"));
+//            payButton.click();
+        }
+    }
+
+    public void confirmOrder() {
+        WebElement orderConfirmation = new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(ExpectedConditions.visibilityOfElementLocated(By.id("order-confirmation")));
+        System.out.println("Order confirmed: " + orderConfirmation.getText());
+    }
+
+    public void runTest() {
+        if (TimeCheck.isValidTime()) {
+            try {
+                searchProductAndAddToCart();
+                makePayment();
+                confirmOrder();
+            } finally {
+                driver.quit();
+            }
+        } else {
+            System.out.println("Test can only be run between 6 PM and 7 PM.");
+        }
+    }
+
+    public static void main(String[] args) {
+        ProductPurchaseTest test = new ProductPurchaseTest();
+        test.runTest();
+    }
+}

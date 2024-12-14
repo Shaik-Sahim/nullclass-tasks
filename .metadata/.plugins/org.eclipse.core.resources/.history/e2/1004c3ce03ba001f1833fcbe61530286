@@ -1,0 +1,104 @@
+package seleniumJava;
+
+import org.junit.jupiter.api.*;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.time.LocalTime;
+
+public class LoginTest {
+
+    private WebDriver driver;
+    private String baseUrl = "https://in.puma.com/in/en";  // Replace with your application URL
+
+    @BeforeEach
+    public void setUp() {
+        // Set path to ChromeDriver (change it to your local path)
+    	System.setProperty("webdriver.chrome.driver", "c:\\Drivers\\chromedriver.exe");
+        driver = new ChromeDriver();
+		driver.manage().window().maximize();
+    }
+
+    @Test
+    public void testLoginFunctionality() {
+        driver.get(baseUrl + "/account/login?action=login_with_email");
+        
+        // Input username and password (adjust locators accordingly)
+        driver.findElement(By.id("email")).sendKeys("sahim3041@gmail.com");
+        driver.findElement(By.id("password")).sendKeys("Sahim@789");
+        driver.findElement(By.id("login-submit")).click(); // Adjust to your login button's locator
+        
+//        WebDriverWait waitforLogin = new WebDriverWait(driver, Duration.ofSeconds(30));
+//        WebElement greetingElement = waitforLogin.until(ExpectedConditions.elementToBeClickable(By.cssSelector("h1[data-test-id='account-greeting']")));
+//
+//        // Get the text of the element
+//        String fullGreetingText = greetingElement.getText(); // "Hello, sahim"
+//
+//        // Remove "Hello," to extract the name
+//        String name = fullGreetingText.replace("Hello, ", "").trim();
+//
+//        // Print the extracted name
+//        System.out.println("Extracted Name: " + name);
+        
+        // Verify successful login by checking the user profile page
+        WebDriverWait waitforLogin = new WebDriverWait(driver, Duration.ofSeconds(30));
+        WebElement greetingElement = waitforLogin.until(ExpectedConditions.elementToBeClickable(By.cssSelector("h1[data-test-id='account-greeting']")));
+        Assertions.assertTrue(greetingElement.isDisplayed());
+    }
+
+    @Test
+    public void testProfileNameValidation() {
+
+        driver.get(baseUrl + "/account");  // Navigate to the profile page
+        WebDriverWait waitforLogin = new WebDriverWait(driver, Duration.ofSeconds(30));
+        WebElement greetingElement = waitforLogin.until(ExpectedConditions.elementToBeClickable(By.cssSelector("h1[data-test-id='account-greeting']")));
+        String fullGreetingText = greetingElement.getText();
+        String name = fullGreetingText.replace("Hello, ", "").trim();
+
+        // Define forbidden characters
+//        String forbiddenChars = "ACGILK";
+
+        // Check if the name contains any forbidden characters
+        Assertions.assertFalse(name.matches(".*[ACGILK].*"), "Profile name should not contain restricted characters.");
+
+    }
+
+//    @Test
+//    public void testProfileDisplay() {
+//        testLoginFunctionality();
+//
+//        driver.get(baseUrl + "/account"); 
+//
+//        WebElement profileName = driver.findElement(By.id("profileName"));
+//        String displayedName = profileName.getText();
+//        // Assert that the profile name does not contain invalid characters (A, C, G, I, L, K)
+//        Assertions.assertFalse(displayedName.matches(".*[ACGILK].*"), "Profile name should not contain restricted characters.");
+//    }
+
+    @Test
+    public void testTimeSpecificBehavior() {
+        // Get the current time
+        LocalTime currentTime = LocalTime.now();
+        int hour = currentTime.getHour();
+        
+        // Run tests only between 12 PM and 3 PM
+        if (hour >= 12 && hour <= 15) {
+            testLoginFunctionality();
+            testProfileNameValidation();
+//            testProfileDisplay();
+        } else {
+            System.out.println("Tests can only be run between 12 PM and 3 PM. Current time: " + currentTime);
+        }
+    }
+
+    @AfterEach
+    public void tearDown() {
+        // Close the browser after each test
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}
